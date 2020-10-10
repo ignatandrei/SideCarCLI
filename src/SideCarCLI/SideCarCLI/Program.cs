@@ -20,10 +20,13 @@ namespace SideCarCLI
                     Console.WriteLine("made by Andrei Ignat, http://msprogrammer.serviciipeweb.ro/category/sidecar/");
                 });
              });
+            app.Command("originalApp", cmd =>
+            {
+
+            }
 
 
-
-            app.OnExecute(() =>
+                app.OnExecute(() =>
             {
                 Console.WriteLine("Specify a subcommand");
                 app.ShowVersion();
