@@ -62,7 +62,14 @@ namespace SideCarCLI
                 cmd.Option("-f|--folder", "folder where to start the interceptor", CommandOptionType.SingleOrNoValue);
 
             });
+            app.Command("plugins", cmd =>
+            {
+                cmd.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
+                cmd.Option("-f|--folder", "folder with plugins", CommandOptionType.SingleValue);
+                cmd.Option("-l|--list", "List plugins", CommandOptionType.NoValue);
+                cmd.Option("-a|--add", "Add interceptor to execute", CommandOptionType.MultipleValue);
 
+            });
             app.OnExecute(() =>
             {
                 Console.WriteLine("Specify a command");
