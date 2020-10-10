@@ -1,5 +1,8 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace SideCarCLI
 {
@@ -12,7 +15,7 @@ namespace SideCarCLI
                 MakeSuggestionsInErrorMessage = true,
                 FullName = "SideCar for any other application",
                 ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
-                ExtendedHelpText= @"
+                ExtendedHelpText = @"
                 The most simplest form it is: 
                     SideCarCLI startApp --name YourApp
                 "
@@ -29,54 +32,54 @@ namespace SideCarCLI
                     Console.WriteLine("made by Andrei Ignat, http://msprogrammer.serviciipeweb.ro/category/sidecar/");
                 });
             });
-            
-            app.Command("startApp", cmd =>
-            {
-                cmd.FullName = "start the CLI application that you need to intercept";
-                cmd.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
-                cmd.Option("-n|--name <fullPathToApplication>", "Path to the StartApp", CommandOptionType.SingleValue);
-                cmd.Option("-a|--arguments <arguments_to_the_app>", "StartApp arguments", CommandOptionType.MultipleValue);
-                cmd.Option("-f|--folder <folder_where_execute_the_app>", "folder where to execute the StartApp - default folder of the StartApp ", CommandOptionType.SingleOrNoValue);
-            });
 
-            app.Command("lineInterceptors", cmd =>
+            app.Command("startApp", cmdStartApp =>
             {
-                cmd.FullName = "Specify application for start when StartApp has a new line output";
-                cmd.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
-                cmd.Option("-l|--list", "List interceptors for lines", CommandOptionType.NoValue);                                
-                cmd.Option("-a|--add", "Add interceptor to execute", CommandOptionType.MultipleValue);
-                cmd.Option("-f|--folder", "folder where to start the interceptor" ,CommandOptionType.SingleOrNoValue);
-            });
+                cmdStartApp.FullName = "start the CLI application that you need to intercept";
+                cmdStartApp.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
+                cmdStartApp.Option("-n|--name <fullPathToApplication>", "Path to the StartApp", CommandOptionType.SingleValue);
+                cmdStartApp.Option("-a|--arguments <arguments_to_the_app>", "StartApp arguments", CommandOptionType.MultipleValue);
+                cmdStartApp.Option("-f|--folder <folder_where_execute_the_app>", "folder where to execute the StartApp - default folder of the StartApp ", CommandOptionType.SingleOrNoValue);
 
-            app.Command("timer", cmd =>
-            {
-                cmd.FullName = "Specify timer to start an application at repeating interval ";
-                cmd.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
-                cmd.Option("-i|--intervalRepeatSeconds", "Repeat interval in seconds", CommandOptionType.SingleValue);
-                cmd.Option("-l|--list", "List interceptors to execute periodically", CommandOptionType.NoValue);
-                cmd.Option("-a|--add", "Add interceptor to execute", CommandOptionType.MultipleValue);
-                cmd.Option("-f|--folder", "folder where to start the interceptor" ,CommandOptionType.SingleOrNoValue);
-            
-            });
-            app.Command("finishInterceptors", cmd =>
-            {
-                cmd.FullName = "Specify interceptors for start when finish the app";
-                cmd.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
-                cmd.Option("-l|--list", "List interceptors for finish application", CommandOptionType.NoValue);
-                cmd.Option("-a|--add", "Add interceptor to execute", CommandOptionType.MultipleValue);
-                cmd.Option("-f|--folder", "folder where to start the interceptor", CommandOptionType.SingleOrNoValue);
+                cmdStartApp.Command("lineInterceptors", cmd =>
+                {
+                    cmd.FullName = "Specify application for start when StartApp has a new line output";
+                    cmd.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
+                    cmd.Option("-l|--list", "List interceptors for lines", CommandOptionType.NoValue);
+                    cmd.Option("-a|--add", "Add interceptor to execute", CommandOptionType.MultipleValue);
+                    cmd.Option("-f|--folder", "folder where to start the interceptor", CommandOptionType.SingleOrNoValue);
+                });
 
-            });
-            app.Command("plugins", cmd =>
-            {
-                cmd.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
+                cmdStartApp.Command("timer", cmd =>
+                {
+                    cmd.FullName = "Specify timer to start an application at repeating interval ";
+                    cmd.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
+                    cmd.Option("-i|--intervalRepeatSeconds", "Repeat interval in seconds", CommandOptionType.SingleValue);
+                    cmd.Option("-l|--list", "List interceptors to execute periodically", CommandOptionType.NoValue);
+                    cmd.Option("-a|--add", "Add interceptor to execute", CommandOptionType.MultipleValue);
+                    cmd.Option("-f|--folder", "folder where to start the interceptor", CommandOptionType.SingleOrNoValue);
 
-                cmd.FullName = " Load dynamically plugins ";
-                cmd.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
-                cmd.Option("-f|--folder", "folder with plugins", CommandOptionType.SingleValue);
-                cmd.Option("-l|--list", "List plugins", CommandOptionType.NoValue);
-                cmd.Option("-a|--add", "Add interceptor to execute", CommandOptionType.MultipleValue);
+                });
+                cmdStartApp.Command("finishInterceptors", cmd =>
+                {
+                    cmd.FullName = "Specify interceptors for start when finish the app";
+                    cmd.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
+                    cmd.Option("-l|--list", "List interceptors for finish application", CommandOptionType.NoValue);
+                    cmd.Option("-a|--add", "Add interceptor to execute", CommandOptionType.MultipleValue);
+                    cmd.Option("-f|--folder", "folder where to start the interceptor", CommandOptionType.SingleOrNoValue);
 
+                });
+                cmdStartApp.Command("plugins", cmd =>
+                {
+                    cmd.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
+
+                    cmd.FullName = " Load dynamically plugins ";
+                    cmd.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
+                    cmd.Option("-f|--folder", "folder with plugins", CommandOptionType.SingleValue);
+                    cmd.Option("-l|--list", "List plugins", CommandOptionType.NoValue);
+                    cmd.Option("-a|--add", "Add interceptor to execute", CommandOptionType.MultipleValue);
+
+                });
             });
 
             app.Command("_listAllCommands", cmd =>
@@ -86,16 +89,7 @@ namespace SideCarCLI
 
                 cmd.OnExecute(() =>
                 {
-                    Console.WriteLine($"--------------");
-                    app.ShowHelp();
-                    Console.WriteLine($"--------------");
-                    foreach (var item in app.Commands)
-                    {
-                        Console.WriteLine($"Command : {item.Name} ");
-                        Console.WriteLine(item.FullName);
-                        item.ShowHelp();
-                        Console.WriteLine($"--------------");
-                    }
+                    WriteAllCommands(app);
                 });
             });
             app.OnExecute(() =>
@@ -106,6 +100,34 @@ namespace SideCarCLI
             });
             return app.Execute(args);
 
+        }
+        static void WriteAllCommands(CommandLineApplication cmd)
+        {
+            Console.WriteLine($"--------------");
+            //cmd.ShowRootCommandFullNameAndVersion();
+            var p = cmd;
+            var all = new List<string>();
+            all.Add(p.Name);
+            while(p.Parent != null)
+            {
+                all.Add(p.Parent.Name);
+                p = p.Parent;
+                
+            }
+            var text = string.Join("-->", all.ToArray().Reverse());
+            //string tabs = "";
+            //var nr = all.Count() - 2;
+            //if(nr>0)
+            //{
+            //    tabs = string.Join("", Enumerable.Repeat("   ", nr));
+            //}
+            Console.WriteLine("command path:"+text);
+            Console.WriteLine($"--------------");
+            cmd.ShowHelp();
+            foreach (var item in cmd.Commands)
+            {
+                WriteAllCommands(item);
+            }
         }
     }
 }
