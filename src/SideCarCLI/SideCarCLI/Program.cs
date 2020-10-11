@@ -8,8 +8,10 @@ namespace SideCarCLI
 {
     class Program
     {
+        static SideCarData data;
         static int Main(string[] args)
         {
+            data = new SideCarData();
             var app = new CommandLineApplication()
             {
                 MakeSuggestionsInErrorMessage = true,
@@ -23,7 +25,7 @@ namespace SideCarCLI
 
 
             app.HelpOption("-h|--help", inherited: true);
-            app.Option("-max|--maxSeconds", "max seconds for the StartApp to run", CommandOptionType.SingleOrNoValue); ;
+            var maxSeconds=app.Option("-max|--maxSeconds", "max seconds for the StartApp to run", CommandOptionType.SingleOrNoValue); ;
             app.Command("_about", cmd =>
             {
                 cmd.OnExecute(() =>
@@ -91,6 +93,10 @@ namespace SideCarCLI
                 {
                     WriteAllCommands(app);
                 });
+            });
+            app.OnParsingComplete(pr =>
+            {
+                data.ParseSeconds(maxSeconds);
             });
             app.OnExecute(() =>
             {
