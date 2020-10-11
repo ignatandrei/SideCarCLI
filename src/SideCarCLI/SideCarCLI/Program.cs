@@ -1,8 +1,10 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace SideCarCLI
 {
@@ -12,6 +14,7 @@ namespace SideCarCLI
         static int Main(string[] args)
         {
             data = new SideCarData();
+
             var app = new CommandLineApplication()
             {
                 MakeSuggestionsInErrorMessage = true,
@@ -25,8 +28,10 @@ namespace SideCarCLI
 
 
             app.HelpOption("-h|--help", inherited: true);
-            var maxSeconds=app.Option("-max|--maxSeconds", "max seconds for the StartApp to run", CommandOptionType.SingleOrNoValue); ;
-            app.Command("_about", cmd =>
+            var maxSeconds=app.Option("-max|--maxSeconds", "max seconds for the StartApp to run", CommandOptionType.SingleOrNoValue);
+
+            //"the "_" flag is not common"
+            app.Command("-a|--about", cmd =>
             {
                 cmd.OnExecute(() =>
                 {
@@ -42,6 +47,24 @@ namespace SideCarCLI
                 cmdStartApp.Option("-n|--name <fullPathToApplication>", "Path to the StartApp", CommandOptionType.SingleValue);
                 cmdStartApp.Option("-a|--arguments <arguments_to_the_app>", "StartApp arguments", CommandOptionType.MultipleValue);
                 cmdStartApp.Option("-f|--folder <folder_where_execute_the_app>", "folder where to execute the StartApp - default folder of the StartApp ", CommandOptionType.SingleOrNoValue);
+
+
+                cmdStartApp.OnExecute(() =>
+                {
+                    Console.WriteLine(args[2]);
+                    var argsBuilder = new StringBuilder();
+
+                    if (args[1] == "")
+                        Console.WriteLine($"{args[1]} is mandatory");
+
+                    foreach (var arg in args)
+                    {
+                        Console.WriteLine(arg);
+                    }
+                    
+                     Process.Start(args[2]);// this is the argument after the flag
+
+                });
 
                 cmdStartApp.Command("lineInterceptors", cmd =>
                 {
