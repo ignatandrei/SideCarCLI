@@ -45,8 +45,8 @@ namespace SideCarCLI
                 cmdStartApp.ResponseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated;
                 var nameExe=cmdStartApp.Option("-n|--name <fullPathToApplication>", "Path to the StartApp", CommandOptionType.SingleValue);
                 var argExe = cmdStartApp.Option("-a|--arguments <arguments_to_the_app>", "StartApp arguments", CommandOptionType.MultipleValue);
-                cmdStartApp.Option("-f|--folder <folder_where_execute_the_app>", "folder where to execute the StartApp - default folder of the StartApp ", CommandOptionType.SingleOrNoValue);
-                var maxSeconds = app.Option("-max|--maxSeconds", "max seconds for the StartApp to run", CommandOptionType.SingleOrNoValue);
+                var wd=cmdStartApp.Option("-f|--folder <folder_where_execute_the_app>", "folder where to execute the StartApp - default folder of the StartApp ", CommandOptionType.SingleOrNoValue);
+                var maxSeconds = app.Option("-mS|--maxSeconds", "max seconds for the StartApp to run", CommandOptionType.SingleOrNoValue);
                 var lineInterceptorsNames= cmdStartApp.Option("-aLi|--addLineInterceptor", "Add Line Interceptor to execute", CommandOptionType.MultipleValue);
                 var timerInterceptorsNames=cmdStartApp.Option("-aTi|--addTimerInterceptor", "Add Timer Interceptor to execute", CommandOptionType.MultipleValue);
                 var finishInterceptorsNames = cmdStartApp.Option("-aFi|--addFinishInterceptor", "Add Finish Interceptor to execute", CommandOptionType.MultipleValue);
@@ -59,7 +59,9 @@ namespace SideCarCLI
                     
                     
                     data.ParseCommandName(nameExe);
-                    var arguments = argExe.Value();
+                    data.ParseArguments(argExe);
+                    data.ParseWorkingDirectory(wd);
+                    
                     data.ExecuteApp();  
                   
 
