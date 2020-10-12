@@ -7,6 +7,7 @@ namespace SideCarCLI
     public class Interceptor
     {
         public string Name { get; set; }
+        public string FullPath { get; set; }
         public string FolderToExecute { get; set; }
 
     }

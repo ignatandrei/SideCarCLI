@@ -4,15 +4,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 
 namespace SideCarCLI
 {
     class Program
     {
-        static SideCarData data;
+        
         static int Main(string[] args)
         {
-            data = new SideCarData();
+            string fileInterceptors = Path.Combine("cmdInterceptors", "interceptors.json");
+            var interceptors = JsonSerializer.Deserialize<Interceptors>(File.ReadAllText(fileInterceptors));
+
             var app = new CommandLineApplication()
             {
                 MakeSuggestionsInErrorMessage = true,
@@ -51,9 +54,14 @@ namespace SideCarCLI
 
                 cmdStartApp.OnExecute(() =>
                 {
-                    var commandName = nameExe.Value();
+                    var data = new SideCarData(interceptors);
+                    data.ParseSeconds(maxSeconds);
+                    
+                    
+                    data.ParseCommandName(nameExe);
                     var arguments = argExe.Value();
-                    Process.Start(commandName);
+                    data.ExecuteApp();  
+                  
 
                 });
 
