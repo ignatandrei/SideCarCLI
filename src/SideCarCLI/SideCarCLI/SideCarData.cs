@@ -1,15 +1,21 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Text.Json;
 
 namespace SideCarCLI
 {
     class SideCarData
     {
+        private Interceptors interceptors;
         public SideCarData()
         {
+            string fileInterceptors = Path.Combine("cmdInterceptors", "interceptors.json");
+            interceptors = JsonSerializer.Deserialize<Interceptors>(File.ReadAllText(fileInterceptors));
+
             parsingErrors = new List<KeyValuePair<string, string>>();
         }
         List<KeyValuePair<string, string>> parsingErrors;

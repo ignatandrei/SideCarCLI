@@ -1,0 +1,9 @@
+﻿{
+  "TimerInterceptors": [],
+  "LineInterceptors": [
+    {
+      "Name": "echo",
+      "FolderToExecute": null
+    }
+  ]
+}
