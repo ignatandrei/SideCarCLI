@@ -15,7 +15,7 @@ namespace SideCarCLI
         {
             string fileInterceptors = Path.Combine("cmdInterceptors", "interceptors.json");
             var interceptors = JsonSerializer.Deserialize<Interceptors>(File.ReadAllText(fileInterceptors));
-
+            
             var app = new CommandLineApplication()
             {
                 MakeSuggestionsInErrorMessage = true,

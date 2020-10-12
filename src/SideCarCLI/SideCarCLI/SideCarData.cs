@@ -28,7 +28,7 @@ namespace SideCarCLI
         }
        
 
-        public long MaxSeconds { get; internal set; }
+        public int MaxSeconds { get; internal set; }
         public string FullAppPath { get; internal set; }
         public string Arguments { get; internal set; }
         internal void ParseSeconds(CommandOption cmd)
@@ -37,7 +37,7 @@ namespace SideCarCLI
             if (cmd.HasValue())
             {
                 string valSeconds = cmd.Value();
-                if (!long.TryParse(valSeconds,out long result))
+                if (!int.TryParse(valSeconds,out int result))
                 {
                     MaxSeconds = result;
                 }
@@ -70,8 +70,17 @@ namespace SideCarCLI
             pi.RedirectStandardOutput = true;
             
             var p = Process.Start(pi);
-            p.OutputDataReceived += P_OutputDataReceived;            
-            p.WaitForExit();
+            p.OutputDataReceived += P_OutputDataReceived;
+            var res=p.WaitForExit(this.MaxSeconds);
+            var exitCode = 0;
+            if (res)
+            {
+                exitCode = p.ExitCode;                
+            }
+            else
+            {
+                exitCode = int.MinValue;
+            }
 
             //TODO: finish  with p.ExitCode
 
@@ -85,6 +94,31 @@ namespace SideCarCLI
         {
             //TODO: line interceptors to 
             //e.Data
+            if (!(this.interceptors?.LineInterceptors?.Length > 0))
+                return;
+
+            foreach(var item in this.interceptors.LineInterceptors)
+            {
+                try
+                {
+                    var pi = new ProcessStartInfo(item.FullPath);
+                    pi.Arguments = e.Data;
+                    string wd = item.FolderToExecute; ;
+                    if (string.IsNullOrWhiteSpace(wd)) {
+                        wd = Path.GetDirectoryName(Path.GetFullPath(item.FullPath));
+                    }
+                    
+                    pi.WorkingDirectory = wd;
+                    pi.UseShellExecute = true;
+                    pi.CreateNoWindow = false;                    
+                    var p = Process.Start(pi);                    
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
         }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
