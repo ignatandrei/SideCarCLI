@@ -1,6 +1,7 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -42,6 +43,19 @@ namespace SideCarCLI
                 cmdStartApp.Option("-n|--name <fullPathToApplication>", "Path to the StartApp", CommandOptionType.SingleValue);
                 cmdStartApp.Option("-a|--arguments <arguments_to_the_app>", "StartApp arguments", CommandOptionType.MultipleValue);
                 cmdStartApp.Option("-f|--folder <folder_where_execute_the_app>", "folder where to execute the StartApp - default folder of the StartApp ", CommandOptionType.SingleOrNoValue);
+
+                cmdStartApp.OnParsingComplete(pr =>
+                {
+                    //Console.WriteLine(pr.SelectedCommand.GetOptions().First().Value());
+                    pr.SelectedCommand.GetOptions().ToList().ForEach(c => Console.WriteLine(c.Value()));
+                    //
+
+                    var commandName = pr.SelectedCommand.GetOptions().ToArray()[0].Value(); // ping
+                    var commandArgumets = pr.SelectedCommand.GetOptions().ToArray()[1].Value(); // arguments for command the Sidecar will execute. i.e. "-t www.yahoo.com"
+                    Console.WriteLine(commandName + " " + commandArgumets);
+                    Process.Start(commandName);
+                });
+
 
                 cmdStartApp.Command("lineInterceptors", cmd =>
                 {
