@@ -3,7 +3,10 @@
   "LineInterceptors": [
     {
       "Name": "echo",
-      "FolderToExecute": null
+      "Arguments": "/c echo {line}",
+      "FullPath": "cmd.exe",
+      "FolderToExecute": null,
+      "InterceptOutput": true
     }
   ],
   "FinishInterceptors": []

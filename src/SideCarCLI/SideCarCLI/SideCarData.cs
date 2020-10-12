@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Text.Json;
@@ -33,7 +34,7 @@ namespace SideCarCLI
         public string Arguments { get; internal set; }
         internal void ParseSeconds(CommandOption cmd)
         {
-            MaxSeconds = 0;
+            
             if (cmd.HasValue())
             {
                 string valSeconds = cmd.Value();
@@ -43,6 +44,7 @@ namespace SideCarCLI
                 }
                 else
                 {
+                    this.MaxSeconds = RunAppTillTheEnd;
                     string[] names = new[] { nameof(cmd.ShortName) };
                     
                     validations.Add(new ValidationResult($"cannot parse {valSeconds}", names));
@@ -64,13 +66,19 @@ namespace SideCarCLI
             var pi = new ProcessStartInfo(this.FullAppPath);
             pi.Arguments = this.Arguments;
             pi.WorkingDirectory = this.WorkingDirectory;
-            pi.UseShellExecute = true;
-            pi.CreateNoWindow = true;
+            pi.UseShellExecute = false;
+            pi.CreateNoWindow = false;
             pi.RedirectStandardError = true;
             pi.RedirectStandardOutput = true;
-            
-            var p = Process.Start(pi);
+            Process p = new Process()
+            {
+                StartInfo = pi
+            };
+
+          
             p.OutputDataReceived += P_OutputDataReceived;
+            p.Start();
+            p.BeginOutputReadLine();
             var res=p.WaitForExit(this.MaxSeconds);
             var exitCode = 0;
             if (res)
@@ -103,16 +111,30 @@ namespace SideCarCLI
                 {
                     var pi = new ProcessStartInfo(item.FullPath);
                     pi.Arguments = e.Data;
-                    string wd = item.FolderToExecute; ;
-                    if (string.IsNullOrWhiteSpace(wd)) {
-                        wd = Path.GetDirectoryName(Path.GetFullPath(item.FullPath));
+                    string wd = item.FolderToExecute;
+                    if (string.IsNullOrWhiteSpace(wd))
+                    {
+                        wd = Path.GetDirectoryName(Path.GetFullPath(item.Name));
                     }
-                    
+                    string arguments = item.Arguments;
+                    if (string.IsNullOrWhiteSpace(arguments))
+                    {
+                        arguments = "{line}";
+                    }
+                    pi.Arguments = arguments.Replace("{line}",e.Data);
                     pi.WorkingDirectory = wd;
-                    pi.UseShellExecute = true;
-                    pi.CreateNoWindow = false;                    
-                    var p = Process.Start(pi);                    
+                    pi.UseShellExecute = !item.InterceptOutput;
+                    pi.CreateNoWindow = false;
 
+                    var p = new Process()
+                    {
+                        StartInfo = pi
+                    };
+                    if (item.InterceptOutput)
+                    {
+                        p.OutputDataReceived += a(item);
+                    }
+                    p.Start();
                 }
                 catch (Exception ex)
                 {
@@ -120,6 +142,15 @@ namespace SideCarCLI
                 }
             }
         }
+        Func<Interceptor, DataReceivedEventHandler> a = (item) =>
+        {
+            return delegate (object sender, DataReceivedEventArgs e)
+            {
+                Console.WriteLine("!!!!");
+                Console.WriteLine($"[{item.Name}] {e.Data}");
+            };
+        };
+        
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

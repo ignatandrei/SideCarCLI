@@ -7,8 +7,10 @@ namespace SideCarCLI
     public class Interceptor
     {
         public string Name { get; set; }
+        public string Arguments { get; set; }
         public string FullPath { get; set; }
         public string FolderToExecute { get; set; }
+        public bool InterceptOutput { get; set; }
 
     }
     public class TimerInterceptor: Interceptor

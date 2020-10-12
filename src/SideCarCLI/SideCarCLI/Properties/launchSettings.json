@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SideCarCLI": {
+      "commandName": "Project",
+      "commandLineArgs": "StartAPP -n ping -a \"-t www.yahoo.com\" -aLi echo"
+    }
+  }
+}
