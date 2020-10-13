@@ -92,10 +92,7 @@ namespace SideCarCLI
             {
                 StartInfo = pi
             };
-            runningInterceptors.LineInterceptors = allInterceptors.LineInterceptors;
-            runningInterceptors.TimerInterceptors = allInterceptors.TimerInterceptors;
-            runningInterceptors.FinishInterceptors = allInterceptors.FinishInterceptors;
-
+            
             ShowSummary(pi, this);
             
             p.OutputDataReceived += P_OutputDataReceived;
@@ -160,9 +157,9 @@ namespace SideCarCLI
             if (lineInterceptorsNames.HasValue())
             {
                 var names = lineInterceptorsNames.Values.Where(it => !string.IsNullOrWhiteSpace(it)).ToArray();
-                var inter = this.allInterceptors.LineInterceptors.Where(it => names.Contains(it.Name)).ToArray();
+                var inter = this.allInterceptors.LineInterceptors?.Where(it => names.Contains(it.Name)).ToArray();
                 this.runningInterceptors.LineInterceptors = inter;
-                if(names.Length > inter.Length)
+                if(names.Length > inter?.Length)
                 {
                     var diff = names.Except(inter.Select(it => it.Name)).ToArray();
                     string[] namesMember = new[] { lineInterceptorsNames.ShortName, lineInterceptorsNames.LongName };
@@ -176,11 +173,11 @@ namespace SideCarCLI
             if (timerInterceptorsNames.HasValue())
             {
                 var names = timerInterceptorsNames.Values.Where(it => !string.IsNullOrWhiteSpace(it)).ToArray();
-                var inter = this.allInterceptors.TimerInterceptors.Where(it => names.Contains(it.Name)).ToArray();
+                var inter = this.allInterceptors.TimerInterceptors?.Where(it => names.Contains(it.Name)).ToArray();
                 this.runningInterceptors.TimerInterceptors= inter;
-                if (names.Length > inter.Length)
+                if (names.Length > inter?.Length)
                 {
-                    var diff = names.Except(inter.Select(it => it.Name)).ToArray();
+                    var diff = names.Except(inter?.Select(it => it.Name)).ToArray();
                     string[] namesMember = new[] { timerInterceptorsNames.ShortName, timerInterceptorsNames.LongName };
                     foreach (var item in diff)
                     {
@@ -192,11 +189,11 @@ namespace SideCarCLI
             if (finishInterceptorsNames.HasValue())
             {
                 var names = finishInterceptorsNames.Values.Where(it => !string.IsNullOrWhiteSpace(it)).ToArray();
-                var inter = this.allInterceptors.FinishInterceptors.Where(it => names.Contains(it.Name)).ToArray();
+                var inter = this.allInterceptors.FinishInterceptors?.Where(it => names.Contains(it.Name)).ToArray();
                 this.runningInterceptors.FinishInterceptors = inter;
-                if (names.Length > inter.Length)
+                if (names.Length > inter?.Length)
                 {
-                    var diff = names.Except(inter.Select(it => it.Name)).ToArray();
+                    var diff = names.Except(inter?.Select(it => it.Name)).ToArray();
                     string[] namesMember = new[] { finishInterceptorsNames.ShortName, finishInterceptorsNames.LongName };
                     foreach (var item in diff)
                     {
@@ -210,17 +207,20 @@ namespace SideCarCLI
         private void ShowSummary(ProcessStartInfo pi, SideCarData sideCarData)
         {
             Console.WriteLine($"I will start {pi.FileName} in {pi.WorkingDirectory} with {pi.Arguments}");
-            Console.WriteLine($"LineInterceptors:{sideCarData?.runningInterceptors?.LineInterceptors?.Length}"); ;
-            foreach(var item in sideCarData?.runningInterceptors?.LineInterceptors)
+            Console.WriteLine($"LineInterceptors:{sideCarData?.runningInterceptors?.LineInterceptors?.Length}"); 
+            if (sideCarData.runningInterceptors?.LineInterceptors?.Length > 0)
+            foreach (var item in sideCarData?.runningInterceptors?.LineInterceptors)
             {
                 Console.WriteLine($"LineInterceptor:{item.Name}");
             }
             Console.WriteLine($"TimerInterceptors:{sideCarData?.runningInterceptors?.TimerInterceptors?.Length}");
+            if(sideCarData.runningInterceptors?.TimerInterceptors?.Length>0)
             foreach (var item in sideCarData.runningInterceptors.TimerInterceptors)
             {
                 Console.WriteLine($"TimerInterceptor:{item.Name}");
             }
             Console.WriteLine($"FinishInterceptors:{sideCarData?.runningInterceptors?.FinishInterceptors?.Length}");
+            if(sideCarData.runningInterceptors?.FinishInterceptors?.Length>0)
             foreach (var item in sideCarData.runningInterceptors.FinishInterceptors)
             {
                 Console.WriteLine($"FinishInterceptor:{item.Name}");
