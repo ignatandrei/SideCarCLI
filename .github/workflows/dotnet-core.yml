@@ -21,18 +21,22 @@ jobs:
       run: | 
         cd src
         cd SideCarCLI
-        dotnet restore
-        dotnet build --configuration Release --no-restore -r linux-x64 -o linuxx64
-        dotnet build --configuration Release --no-restore -r win-x64 -o winx64
+        dotnet restore 
+        echo "build sln"
+        dotnet build --configuration Release --no-restore -r linux-x64 
+        dotnet build --configuration Release --no-restore -r win-x64 
+        cd SideCarCLI
+        dotnet publish -c Release --no-restore -r linux-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true --self-contained -o linuxx64 
+        dotnet publish -c Release --no-restore -r   win-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true --self-contained -o winx64
         
     - uses: actions/upload-artifact@v2
       with:
         name: winx64
-        path: src/SideCarCLI/winx64/
+        path: src/SideCarCLI/SideCarCLI/winx64/
     
     - uses: actions/upload-artifact@v2
       with:
         name: linuxx64
-        path: src/SideCarCLI/linuxx64/
+        path: src/SideCarCLI/SideCarCLI/linuxx64/
         #- name: Test
     #  run: dotnet test --no-restore --verbosity normal
