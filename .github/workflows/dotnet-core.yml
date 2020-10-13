@@ -22,8 +22,17 @@ jobs:
         cd src
         cd SideCarCLI
         dotnet restore
-        dotnet build --configuration Release --no-restore -r linux-x64
-        dotnet build --configuration Release --no-restore -r win-x64
+        dotnet build --configuration Release --no-restore -r linux-x64 -o linuxx64
+        dotnet build --configuration Release --no-restore -r win-x64 -o winx64
         
-    #- name: Test
+    - uses: actions/upload-artifact@v2
+      with:
+        name: winx64
+        path: src/SideCarCLI/winx64/
+    
+    - uses: actions/upload-artifact@v2
+      with:
+        name: linuxx64
+        path: src/SideCarCLI/linuxx64/
+        #- name: Test
     #  run: dotnet test --no-restore --verbosity normal
