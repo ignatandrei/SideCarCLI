@@ -26,8 +26,8 @@ jobs:
         dotnet build --configuration Release --no-restore -r linux-x64 
         dotnet build --configuration Release --no-restore -r win-x64 
         cd SideCarCLI
-        dotnet publish -c Release --no-restore -r linux-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true --self-contained -o linuxx64 
-        dotnet publish -c Release --no-restore -r   win-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true --self-contained -o winx64
+        dotnet publish -c Release --no-restore -r linux-x64 -p:PublishTrimmed=true --self-contained -o linuxx64 
+        dotnet publish -c Release --no-restore -r   win-x64 -p:PublishTrimmed=true --self-contained -o winx64
         
     - uses: actions/upload-artifact@v2
       with:
