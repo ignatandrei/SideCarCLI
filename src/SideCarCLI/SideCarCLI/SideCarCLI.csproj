@@ -5,7 +5,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup>    
+    <None Remove="cmdInterceptors\ExitCodeWait.bat" />    
     <None Remove="cmdInterceptors\Interceptors.json" />
   </ItemGroup>
 
@@ -19,5 +20,12 @@
  <ItemGroup>
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.0.0" />
   </ItemGroup>
+
+ 
+ <ItemGroup>
+   <Content Include="cmdInterceptors\ExitCodeWait.bat">
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </Content>
+ </ItemGroup>
  
 </Project>

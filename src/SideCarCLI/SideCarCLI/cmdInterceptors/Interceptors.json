@@ -7,14 +7,15 @@
       "FullPath": "cmd.exe",
       "FolderToExecute": null,
       "InterceptOutput": true
-    },
+    }
+  ],
+  "FinishInterceptors": [
     {
-      "Name": "Other",
-      "Arguments": "/c echo {line}",
-      "FullPath": "cmd.exe",
+      "Name": "Wait If not exit code 0",
+      "Arguments": "{exitCode}",
+      "FullPath": "cmdInterceptors/ExitCodeWait.bat",
       "FolderToExecute": null,
       "InterceptOutput": true
     }
-  ],
-  "FinishInterceptors": []
+  ]
 }

@@ -96,12 +96,15 @@ namespace SideCarCLI
             var exitCode = 0;
             if (res)
             {
-                exitCode = p.ExitCode;                
+                exitCode = p.ExitCode;
+                RunFinishInterceptors(exitCode);
             }
             else
             {
                 exitCode = int.MinValue;
             }
+            
+
             return exitCode;
             //TODO: finish  with p.ExitCode
 
@@ -109,6 +112,26 @@ namespace SideCarCLI
 
             //TODO: wait maxSeconds if != RunAppTillTheEnd 
 
+        }
+
+        private void RunFinishInterceptors(int exitCode)
+        {
+            if (!(this.interceptors?.FinishInterceptors?.Length > 0))
+                return;
+
+            foreach(var item in this.interceptors.FinishInterceptors)
+            {
+                try
+                {
+                    var local = item;
+                    allProcesses.TryAdd(local.Name, local.RunFinishInterceptor(local.Name, exitCode.ToString()));
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("error:!!!" + ex.Message);
+                }
+            }
         }
 
         private void P_ErrorDataReceived(object sender, DataReceivedEventArgs e)
@@ -129,54 +152,8 @@ namespace SideCarCLI
                 try
                 {
                     var local = item;
-                    var pi = new ProcessStartInfo(item.FullPath);
-                    pi.Arguments = e.Data;
-                    string wd = item.FolderToExecute;
-                    if (string.IsNullOrWhiteSpace(wd))
-                    {
-                        wd = Path.GetDirectoryName(Path.GetFullPath(item.Name));
-                    }
-                    string arguments = item.Arguments;
-                    if (string.IsNullOrWhiteSpace(arguments))
-                    {
-                        arguments = "{line}";
-                    }
-                    pi.Arguments = arguments.Replace("{line}",e.Data);
-                    pi.RedirectStandardError = item.InterceptOutput;
-                    pi.RedirectStandardOutput = item.InterceptOutput;
-                   
-                    pi.WorkingDirectory = wd;
-
-                    pi.UseShellExecute = !item.InterceptOutput;
-                    pi.CreateNoWindow = item.InterceptOutput;
-
-                    var p = new Process()
-                    {
-                        StartInfo = pi
-                    };
-                    p.EnableRaisingEvents = item.InterceptOutput;
-                    allProcesses.TryAdd(local.Name, p);
-                    p.Start();
-                    if (item.InterceptOutput)
-                    {
-                        p.BeginOutputReadLine();
-                        p.BeginErrorReadLine();
-                        p.OutputDataReceived += (sender,args)=>
-                        {
-                            Console.WriteLine($"Interceptor : {local.Name} => {args.Data}");
-                        };
-                        p.ErrorDataReceived+= (sender, args) =>
-                        {
-                            Console.WriteLine($"Interceptor : {local.Name} ERROR => {args.Data}");
-                        };
-                        p.Exited += (sender, args) =>
-                          {
-                              var process = this.allProcesses[local.Name];                              
-                              Console.WriteLine($"Interceptor : {local.Name} FINISH");
-                          };
-                        
-
-                    }
+                    allProcesses.TryAdd(local.Name, local.RunLineInterceptor(local.Name,e.Data));
+                
                 }
                 catch (Exception ex)
                 {
