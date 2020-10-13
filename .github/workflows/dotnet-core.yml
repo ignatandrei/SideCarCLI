@@ -20,6 +20,7 @@ jobs:
     - name: Build
       run: | 
         cd src
+        ls -lh
         dotnet restore
         dotnet build --configuration Release --no-restore -r linux-x64
         dotnet build --configuration Release --no-restore -r win-x64
