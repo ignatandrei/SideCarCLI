@@ -7,6 +7,13 @@ using System.Text;
 
 namespace SideCarCLI
 {
+    enum InterceptorType
+    {
+        None=0,
+        LineInterceptor=1,
+        FinishInterceptor=2,
+        TimerInterceptor =3
+    }
     public class Interceptor
     {
         public string Name { get; set; }
@@ -16,15 +23,31 @@ namespace SideCarCLI
         public bool InterceptOutput { get; set; }
         public Process RunLineInterceptor(string name, string data)
         {
-            return RunInterceptor(name, data, "{line}");
+            return RunInterceptor(name, data, InterceptorType.LineInterceptor);
         }
         public Process RunFinishInterceptor(string name, string data)
         {
-            return RunInterceptor(name, data, "{exitCode}");
+            return RunInterceptor(name, data, InterceptorType.FinishInterceptor);
         }
-
-        private Process RunInterceptor(string name, string data, string replace)
+        private string ReplaceForInterceptor(InterceptorType interceptorType)
         {
+            switch (interceptorType)
+            {
+                case InterceptorType.LineInterceptor:
+                    return "{line}";
+                case InterceptorType.FinishInterceptor:
+                    return "{exitCode}";
+                case InterceptorType.TimerInterceptor:
+                    return null;
+                default:
+                    throw new ArgumentException($"Cannot find {interceptorType.ToString()}");
+            }
+        }
+        private Process RunInterceptor(string name, string data, InterceptorType interceptorType)
+        {
+            string typeInterceptor =  interceptorType.ToString();
+            string replace = ReplaceForInterceptor(interceptorType);
+
             var pi = new ProcessStartInfo(FullPath);
             pi.Arguments = data;
             string wd = FolderToExecute;
@@ -37,7 +60,12 @@ namespace SideCarCLI
             {
                 arguments = replace;
             }
-            pi.Arguments = arguments.Replace(replace, data);
+            
+            if (replace?.Length > 0)
+                pi.Arguments = arguments.Replace(replace, data);
+            else
+                pi.Arguments = arguments;
+
             pi.RedirectStandardError = InterceptOutput;
             pi.RedirectStandardOutput = InterceptOutput;
 
@@ -59,16 +87,15 @@ namespace SideCarCLI
                 p.BeginErrorReadLine();
                 p.OutputDataReceived += (sender, args) =>
                 {
-                    Console.WriteLine($"Interceptor : {name} => {args.Data}");
+                    Console.WriteLine($"Interceptor {typeInterceptor}: {name} => {args.Data}");                    
                 };
                 p.ErrorDataReceived += (sender, args) =>
                 {
-                    Console.WriteLine($"Interceptor : {name} ERROR => {args.Data}");
+                    Console.WriteLine($"Interceptor {typeInterceptor}: {name} ERROR => {args.Data}");
                 };
                 p.Exited += (sender, args) =>
-                {
-                    
-                    Console.WriteLine($"Interceptor : {name} FINISH");
+                {                    
+                    Console.WriteLine($"Interceptor {typeInterceptor}: {name} exited ");
                 };
             }
             return p;

@@ -2,7 +2,7 @@
   "TimerInterceptors": [],
   "LineInterceptors": [
     {
-      "Name": "StandardWindowsOutputInterceptor",
+      "Name": "WindowsStandardWindowsOutputInterceptor",
       "Arguments": "/c echo {line}",
       "FullPath": "cmd.exe",
       "FolderToExecute": null,
@@ -11,7 +11,7 @@
   ],
   "FinishInterceptors": [
     {
-      "Name": "Wait If not exit code 0",
+      "Name": "WindowsWaitIfNotExitCode0",
       "Arguments": "{exitCode}",
       "FullPath": "cmdInterceptors/ExitCodeWait.bat",
       "FolderToExecute": null,
