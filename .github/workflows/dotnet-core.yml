@@ -19,6 +19,7 @@ jobs:
         dotnet-version: 3.1.301
     - name: Build
       run: | 
+        cd src
         dotnet restore
         dotnet build --configuration Release --no-restore -r linux-x64
         dotnet build --configuration Release --no-restore -r win-x64
