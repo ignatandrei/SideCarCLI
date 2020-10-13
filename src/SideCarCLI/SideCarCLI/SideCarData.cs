@@ -124,7 +124,54 @@ namespace SideCarCLI
 
         internal void ParseInterceptors(CommandOption lineInterceptorsNames, CommandOption timerInterceptorsNames, CommandOption finishInterceptorsNames)
         {
-            throw new NotImplementedException();
+            if (lineInterceptorsNames.HasValue())
+            {
+                var names = lineInterceptorsNames.Values.Where(it => !string.IsNullOrWhiteSpace(it)).ToArray();
+                var inter = this.allInterceptors.LineInterceptors.Where(it => names.Contains(it.Name)).ToArray();
+                this.runningInterceptors.LineInterceptors = inter;
+                if(names.Length > inter.Length)
+                {
+                    var diff = names.Except(inter.Select(it => it.Name)).ToArray();
+                    string[] namesMember = new[] { lineInterceptorsNames.ShortName, lineInterceptorsNames.LongName };
+                    foreach (var item in diff)
+                    {
+
+                        validations.Add(new ValidationResult($"cannot find line interceptor {item}", namesMember));
+                    }
+                }
+            }
+            if (timerInterceptorsNames.HasValue())
+            {
+                var names = timerInterceptorsNames.Values.Where(it => !string.IsNullOrWhiteSpace(it)).ToArray();
+                var inter = this.allInterceptors.TimerInterceptors.Where(it => names.Contains(it.Name)).ToArray();
+                this.runningInterceptors.TimerInterceptors= inter;
+                if (names.Length > inter.Length)
+                {
+                    var diff = names.Except(inter.Select(it => it.Name)).ToArray();
+                    string[] namesMember = new[] { timerInterceptorsNames.ShortName, timerInterceptorsNames.LongName };
+                    foreach (var item in diff)
+                    {
+
+                        validations.Add(new ValidationResult($"cannot find timer interceptor {item}", namesMember));
+                    }
+                }
+            }
+            if (finishInterceptorsNames.HasValue())
+            {
+                var names = finishInterceptorsNames.Values.Where(it => !string.IsNullOrWhiteSpace(it)).ToArray();
+                var inter = this.allInterceptors.FinishInterceptors.Where(it => names.Contains(it.Name)).ToArray();
+                this.runningInterceptors.FinishInterceptors = inter;
+                if (names.Length > inter.Length)
+                {
+                    var diff = names.Except(inter.Select(it => it.Name)).ToArray();
+                    string[] namesMember = new[] { finishInterceptorsNames.ShortName, finishInterceptorsNames.LongName };
+                    foreach (var item in diff)
+                    {
+
+                        validations.Add(new ValidationResult($"cannot find timer interceptor {item}", namesMember));
+                    }
+                }
+            }
         }
 
         private void ShowSummary(ProcessStartInfo pi, SideCarData sideCarData)
