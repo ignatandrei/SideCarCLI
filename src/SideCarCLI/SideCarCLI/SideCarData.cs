@@ -10,6 +10,8 @@ using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SideCarCLI
 {
@@ -17,6 +19,7 @@ namespace SideCarCLI
     {
         
         private ConcurrentDictionary<string,Process> allProcesses;
+        private ConcurrentDictionary<string, Process> timerProcesses;
         private readonly Interceptors allInterceptors;
         private readonly Interceptors runningInterceptors;
         const int RunAppTillTheEnd = -1;
@@ -31,6 +34,7 @@ namespace SideCarCLI
             MaxSeconds = RunAppTillTheEnd;
             validations = new List<ValidationResult>();
             allProcesses = new ConcurrentDictionary<string, Process>();
+            timerProcesses = new ConcurrentDictionary<string, Process>();
         }
        
 
@@ -100,6 +104,7 @@ namespace SideCarCLI
             p.Start();
             p.BeginOutputReadLine();
             p.BeginErrorReadLine();
+            RunTimerProcesses();
             var res=p.WaitForExit(this.MaxSeconds);
             var exitCode = 0;
             if (res)
@@ -114,12 +119,40 @@ namespace SideCarCLI
             
 
             return exitCode;
-            //TODO: finish  with p.ExitCode
+            
 
             //TODO: backgroud job with timer interceptor
 
-            //TODO: wait maxSeconds if != RunAppTillTheEnd 
+           
 
+        }
+
+        private async Task<int> RunTimerProcesses()
+        {
+            if (!(runningInterceptors?.TimerInterceptors?.Length > 0))
+                return 0;
+
+
+
+            foreach (var item in runningInterceptors.TimerInterceptors)
+            {
+                var local = item;
+                var t = new System.Timers.Timer(item.intervalRepeatSeconds * 1000);
+                t.Elapsed += (sender, e)=>
+                {
+                    string name = local.Name + DateTime.Now.ToString("o");
+                    timerProcesses.TryAdd(name,local.RunTimerInterceptor(local.Name, local.arguments));
+
+                };
+            }
+
+
+            return 0;
+        }
+
+        private void T_Elapsed()
+        {
+            throw new NotImplementedException();
         }
 
         internal void ParseInterceptors(CommandOption lineInterceptorsNames, CommandOption timerInterceptorsNames, CommandOption finishInterceptorsNames)

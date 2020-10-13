@@ -21,6 +21,10 @@ namespace SideCarCLI
         public string FullPath { get; set; }
         public string FolderToExecute { get; set; }
         public bool InterceptOutput { get; set; }
+        public Process RunTimerInterceptor(string name,string data)
+        {
+            return RunInterceptor(name, data, InterceptorType.TimerInterceptor);
+        }
         public Process RunLineInterceptor(string name, string data)
         {
             return RunInterceptor(name, data, InterceptorType.LineInterceptor);
@@ -103,7 +107,8 @@ namespace SideCarCLI
     }
     public class TimerInterceptor: Interceptor
     {
-        public long intervalRepeatSeconds { get; set; }
+        public int intervalRepeatSeconds { get; set; }
+        public string arguments { get; set; }
     }
     public class Interceptors
     {
