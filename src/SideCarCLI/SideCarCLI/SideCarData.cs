@@ -15,7 +15,8 @@ namespace SideCarCLI
 {
     class SideCarData : IValidatableObject
     {
-        private ConcurrentBag<Process> allProcesses;
+        
+        private ConcurrentDictionary<string,Process> allProcesses;
         private readonly Interceptors interceptors;
         const int RunAppTillTheEnd = -1;
         private List<ValidationResult> validations;
@@ -27,7 +28,7 @@ namespace SideCarCLI
             this.interceptors = interceptors;
             MaxSeconds = RunAppTillTheEnd;
             validations = new List<ValidationResult>();
-            allProcesses = new ConcurrentBag<Process>();
+            allProcesses = new ConcurrentDictionary<string, Process>();
         }
        
 
@@ -37,7 +38,7 @@ namespace SideCarCLI
         public bool ExistRunningProcess { 
             get
             {
-                return allProcesses.Where(it => !it.HasExited).Any();
+                return allProcesses.Where(it => !it.Value.HasExited).Any();
             }
         }
 
@@ -143,6 +144,7 @@ namespace SideCarCLI
                     pi.Arguments = arguments.Replace("{line}",e.Data);
                     pi.RedirectStandardError = item.InterceptOutput;
                     pi.RedirectStandardOutput = item.InterceptOutput;
+                   
                     pi.WorkingDirectory = wd;
 
                     pi.UseShellExecute = !item.InterceptOutput;
@@ -152,7 +154,8 @@ namespace SideCarCLI
                     {
                         StartInfo = pi
                     };
-                    allProcesses.Add(p);
+                    p.EnableRaisingEvents = item.InterceptOutput;
+                    allProcesses.TryAdd(local.Name, p);
                     p.Start();
                     if (item.InterceptOutput)
                     {
@@ -166,6 +169,11 @@ namespace SideCarCLI
                         {
                             Console.WriteLine($"Interceptor : {local.Name} ERROR => {args.Data}");
                         };
+                        p.Exited += (sender, args) =>
+                          {
+                              var process = this.allProcesses[local.Name];                              
+                              Console.WriteLine($"Interceptor : {local.Name} FINISH");
+                          };
                         
 
                     }

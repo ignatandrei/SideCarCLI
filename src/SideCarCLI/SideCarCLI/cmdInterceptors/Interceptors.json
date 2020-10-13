@@ -7,6 +7,13 @@
       "FullPath": "cmd.exe",
       "FolderToExecute": null,
       "InterceptOutput": true
+    },
+    {
+      "Name": "Other",
+      "Arguments": "/c echo {line}",
+      "FullPath": "cmd.exe",
+      "FolderToExecute": null,
+      "InterceptOutput": true
     }
   ],
   "FinishInterceptors": []
