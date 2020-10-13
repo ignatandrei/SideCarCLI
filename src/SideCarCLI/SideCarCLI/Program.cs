@@ -5,13 +5,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace SideCarCLI
 {
     class Program
     {
         
-        static int Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             string fileInterceptors = Path.Combine("cmdInterceptors", "interceptors.json");
             var interceptors = JsonSerializer.Deserialize<Interceptors>(File.ReadAllText(fileInterceptors));
@@ -52,7 +53,7 @@ namespace SideCarCLI
                 var finishInterceptorsNames = cmdStartApp.Option("-aFi|--addFinishInterceptor", "Add Finish Interceptor to execute", CommandOptionType.MultipleValue);
 
 
-                cmdStartApp.OnExecute(() =>
+                cmdStartApp.OnExecuteAsync(async (ct) => 
                 {
                     var data = new SideCarData(interceptors);
                     data.ParseSeconds(maxSeconds);
@@ -62,8 +63,12 @@ namespace SideCarCLI
                     data.ParseArguments(argExe);
                     data.ParseWorkingDirectory(wd);
                     
-                    data.ExecuteApp();  
-                  
+                    var res= data.ExecuteApp();
+                    while (data.ExistRunningProcess)
+                    {
+                        await Task.Delay(5000);
+                    }
+                    return res;
 
                 });
 

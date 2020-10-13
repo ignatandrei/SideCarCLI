@@ -1,5 +1,6 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -14,7 +15,7 @@ namespace SideCarCLI
 {
     class SideCarData : IValidatableObject
     {
-        
+        private ConcurrentBag<Process> allProcesses;
         private readonly Interceptors interceptors;
         const int RunAppTillTheEnd = -1;
         private List<ValidationResult> validations;
@@ -26,12 +27,20 @@ namespace SideCarCLI
             this.interceptors = interceptors;
             MaxSeconds = RunAppTillTheEnd;
             validations = new List<ValidationResult>();
+            allProcesses = new ConcurrentBag<Process>();
         }
        
 
         public int MaxSeconds { get; internal set; }
         public string FullAppPath { get; internal set; }
         public string Arguments { get; internal set; }
+        public bool ExistRunningProcess { 
+            get
+            {
+                return allProcesses.Where(it => !it.HasExited).Any();
+            }
+        }
+
         internal void ParseSeconds(CommandOption cmd)
         {
             
@@ -52,7 +61,7 @@ namespace SideCarCLI
             }
         }
         
-        public void ExecuteApp()
+        public int ExecuteApp()
         {
             var validations = Validate(null).ToArray();
             if (validations.Length > 0)
@@ -61,7 +70,7 @@ namespace SideCarCLI
                 {
                     Console.Error.WriteLine($"{item.MemberNames?.FirstOrDefault()} ->  {item.ErrorMessage} ");
                 }
-                return;
+                return -1;
             }
             var pi = new ProcessStartInfo(this.FullAppPath);
             pi.Arguments = this.Arguments;
@@ -77,8 +86,11 @@ namespace SideCarCLI
 
           
             p.OutputDataReceived += P_OutputDataReceived;
+            p.ErrorDataReceived += P_ErrorDataReceived;
+            
             p.Start();
             p.BeginOutputReadLine();
+            p.BeginErrorReadLine();
             var res=p.WaitForExit(this.MaxSeconds);
             var exitCode = 0;
             if (res)
@@ -89,7 +101,7 @@ namespace SideCarCLI
             {
                 exitCode = int.MinValue;
             }
-
+            return exitCode;
             //TODO: finish  with p.ExitCode
 
             //TODO: backgroud job with timer interceptor
@@ -98,8 +110,14 @@ namespace SideCarCLI
 
         }
 
+        private void P_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            P_OutputDataReceived(sender, e);
+        }
+
         private void P_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
+            
             //TODO: line interceptors to 
             //e.Data
             if (!(this.interceptors?.LineInterceptors?.Length > 0))
@@ -109,6 +127,7 @@ namespace SideCarCLI
             {
                 try
                 {
+                    var local = item;
                     var pi = new ProcessStartInfo(item.FullPath);
                     pi.Arguments = e.Data;
                     string wd = item.FolderToExecute;
@@ -122,26 +141,44 @@ namespace SideCarCLI
                         arguments = "{line}";
                     }
                     pi.Arguments = arguments.Replace("{line}",e.Data);
+                    pi.RedirectStandardError = item.InterceptOutput;
+                    pi.RedirectStandardOutput = item.InterceptOutput;
                     pi.WorkingDirectory = wd;
+
                     pi.UseShellExecute = !item.InterceptOutput;
-                    pi.CreateNoWindow = false;
+                    pi.CreateNoWindow = item.InterceptOutput;
 
                     var p = new Process()
                     {
                         StartInfo = pi
                     };
+                    allProcesses.Add(p);
+                    p.Start();
                     if (item.InterceptOutput)
                     {
-                        p.OutputDataReceived += a(item);
+                        p.BeginOutputReadLine();
+                        p.BeginErrorReadLine();
+                        p.OutputDataReceived += (sender,args)=>
+                        {
+                            Console.WriteLine($"Interceptor : {local.Name} => {args.Data}");
+                        };
+                        p.ErrorDataReceived+= (sender, args) =>
+                        {
+                            Console.WriteLine($"Interceptor : {local.Name} ERROR => {args.Data}");
+                        };
+                        
+
                     }
-                    p.Start();
                 }
                 catch (Exception ex)
                 {
-
+                    Console.WriteLine("error:!!!" + ex.Message);
                 }
             }
         }
+
+        
+
         Func<Interceptor, DataReceivedEventHandler> a = (item) =>
         {
             return delegate (object sender, DataReceivedEventArgs e)

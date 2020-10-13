@@ -2,7 +2,7 @@
   "TimerInterceptors": [],
   "LineInterceptors": [
     {
-      "Name": "echo",
+      "Name": "StandardWindowsOutputInterceptor",
       "Arguments": "/c echo {line}",
       "FullPath": "cmd.exe",
       "FolderToExecute": null,
