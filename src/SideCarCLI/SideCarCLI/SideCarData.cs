@@ -17,15 +17,17 @@ namespace SideCarCLI
     {
         
         private ConcurrentDictionary<string,Process> allProcesses;
-        private readonly Interceptors interceptors;
+        private readonly Interceptors allInterceptors;
+        private readonly Interceptors runningInterceptors;
         const int RunAppTillTheEnd = -1;
         private List<ValidationResult> validations;
         private string WorkingDirectory;
 
-        public SideCarData(Interceptors interceptors)
+        public SideCarData()
         {
-            
-            this.interceptors = interceptors;
+            string fileInterceptors = Path.Combine("cmdInterceptors", "interceptors.json");
+            allInterceptors = JsonSerializer.Deserialize<Interceptors>(File.ReadAllText(fileInterceptors));
+            runningInterceptors = new Interceptors();
             MaxSeconds = RunAppTillTheEnd;
             validations = new List<ValidationResult>();
             allProcesses = new ConcurrentDictionary<string, Process>();
@@ -64,6 +66,7 @@ namespace SideCarCLI
         
         public int ExecuteApp()
         {
+            
             var validations = Validate(null).ToArray();
             if (validations.Length > 0)
             {
@@ -73,6 +76,7 @@ namespace SideCarCLI
                 }
                 return -1;
             }
+            
             var pi = new ProcessStartInfo(this.FullAppPath);
             pi.Arguments = this.Arguments;
             pi.WorkingDirectory = this.WorkingDirectory;
@@ -84,8 +88,12 @@ namespace SideCarCLI
             {
                 StartInfo = pi
             };
+            runningInterceptors.LineInterceptors = allInterceptors.LineInterceptors;
+            runningInterceptors.TimerInterceptors = allInterceptors.TimerInterceptors;
+            runningInterceptors.FinishInterceptors = allInterceptors.FinishInterceptors;
 
-          
+            ShowSummary(pi, this);
+            
             p.OutputDataReceived += P_OutputDataReceived;
             p.ErrorDataReceived += P_ErrorDataReceived;
             
@@ -114,12 +122,29 @@ namespace SideCarCLI
 
         }
 
+        private void ShowSummary(ProcessStartInfo pi, SideCarData sideCarData)
+        {
+            Console.WriteLine($"I will start {pi.FileName} in {pi.WorkingDirectory} with {pi.Arguments}");
+            foreach(var item in sideCarData.runningInterceptors.LineInterceptors)
+            {
+                Console.WriteLine($"LineInterceptor:{item.Name}");
+            }
+            foreach (var item in sideCarData.runningInterceptors.TimerInterceptors)
+            {
+                Console.WriteLine($"TimerInterceptor:{item.Name}");
+            }
+            foreach (var item in sideCarData.runningInterceptors.FinishInterceptors)
+            {
+                Console.WriteLine($"FinishInterceptor:{item.Name}");
+            }
+        }
+
         private void RunFinishInterceptors(int exitCode)
         {
-            if (!(this.interceptors?.FinishInterceptors?.Length > 0))
+            if (!(this.runningInterceptors?.FinishInterceptors?.Length > 0))
                 return;
 
-            foreach(var item in this.interceptors.FinishInterceptors)
+            foreach(var item in this.runningInterceptors.FinishInterceptors)
             {
                 try
                 {
@@ -129,7 +154,7 @@ namespace SideCarCLI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("error:!!!" + ex.Message);
+                    Console.WriteLine($"FinishInterceptor {item?.Name} error:!!!" + ex.Message);
                 }
             }
         }
@@ -144,10 +169,15 @@ namespace SideCarCLI
             
             //TODO: line interceptors to 
             //e.Data
-            if (!(this.interceptors?.LineInterceptors?.Length > 0))
+            if (!(this.runningInterceptors?.LineInterceptors?.Length > 0))
+            {
+                //default write the process data
+                Console.WriteLine(e.Data);
                 return;
+            }
+                
 
-            foreach(var item in this.interceptors.LineInterceptors)
+            foreach(var item in runningInterceptors.LineInterceptors)
             {
                 try
                 {
@@ -157,7 +187,7 @@ namespace SideCarCLI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("error:!!!" + ex.Message);
+                    Console.WriteLine($"LineInterceptor:{item?.Name} error:!!!" + ex.Message);
                 }
             }
         }

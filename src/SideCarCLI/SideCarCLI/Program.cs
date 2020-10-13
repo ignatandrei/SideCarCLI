@@ -14,8 +14,6 @@ namespace SideCarCLI
         
         static async Task<int> Main(string[] args)
         {
-            string fileInterceptors = Path.Combine("cmdInterceptors", "interceptors.json");
-            var interceptors = JsonSerializer.Deserialize<Interceptors>(File.ReadAllText(fileInterceptors));
             
             var app = new CommandLineApplication()
             {
@@ -55,7 +53,7 @@ namespace SideCarCLI
 
                 cmdStartApp.OnExecuteAsync(async (ct) => 
                 {
-                    var data = new SideCarData(interceptors);
+                    var data = new SideCarData();
                     data.ParseSeconds(maxSeconds);
                     
                     
