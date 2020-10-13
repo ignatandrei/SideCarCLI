@@ -14,7 +14,7 @@ namespace SideCarCLI
         
         static async Task<int> Main(string[] args)
         {
-            
+
             var app = new CommandLineApplication()
             {
                 MakeSuggestionsInErrorMessage = true,
@@ -60,7 +60,7 @@ namespace SideCarCLI
                     data.ParseCommandName(nameExe);
                     data.ParseArguments(argExe);
                     data.ParseWorkingDirectory(wd);
-                    
+                    data.ParseInterceptors(lineInterceptorsNames, timerInterceptorsNames, finishInterceptorsNames);                    
                     var res= data.ExecuteApp();
                     while (data.ExistRunningProcess)
                     {

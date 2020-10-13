@@ -122,17 +122,25 @@ namespace SideCarCLI
 
         }
 
+        internal void ParseInterceptors(CommandOption lineInterceptorsNames, CommandOption timerInterceptorsNames, CommandOption finishInterceptorsNames)
+        {
+            throw new NotImplementedException();
+        }
+
         private void ShowSummary(ProcessStartInfo pi, SideCarData sideCarData)
         {
             Console.WriteLine($"I will start {pi.FileName} in {pi.WorkingDirectory} with {pi.Arguments}");
-            foreach(var item in sideCarData.runningInterceptors.LineInterceptors)
+            Console.WriteLine($"LineInterceptors:{sideCarData?.runningInterceptors?.LineInterceptors?.Length}"); ;
+            foreach(var item in sideCarData?.runningInterceptors?.LineInterceptors)
             {
                 Console.WriteLine($"LineInterceptor:{item.Name}");
             }
+            Console.WriteLine($"TimerInterceptors:{sideCarData?.runningInterceptors?.TimerInterceptors?.Length}");
             foreach (var item in sideCarData.runningInterceptors.TimerInterceptors)
             {
                 Console.WriteLine($"TimerInterceptor:{item.Name}");
             }
+            Console.WriteLine($"FinishInterceptors:{sideCarData?.runningInterceptors?.FinishInterceptors?.Length}");
             foreach (var item in sideCarData.runningInterceptors.FinishInterceptors)
             {
                 Console.WriteLine($"FinishInterceptor:{item.Name}");
