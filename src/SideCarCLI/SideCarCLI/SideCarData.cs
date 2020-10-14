@@ -54,6 +54,8 @@ namespace SideCarCLI
 
                 if(waitForTimersToFinish)
                     return timerProcesses.Where(it => !it.Value.HasExited).Any();
+
+                return false;
             }
         }
 
@@ -174,7 +176,7 @@ namespace SideCarCLI
         {
             if (!(runningInterceptors?.TimerInterceptors?.Length > 0))
                 return 0;
-
+            
             foreach (var item in runningInterceptors.TimerInterceptors)
             {
                 var local = item;
@@ -183,7 +185,7 @@ namespace SideCarCLI
             }
             
 
-            return 0;
+            return timers.Count;
         }
 
         private void T_Elapsed()
