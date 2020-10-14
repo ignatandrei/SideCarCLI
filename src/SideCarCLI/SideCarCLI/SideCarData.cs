@@ -20,11 +20,14 @@ namespace SideCarCLI
         
         private ConcurrentDictionary<string,Process> allProcesses;
         private ConcurrentDictionary<string, Process> timerProcesses;
+        private Dictionary<string, Timer> timers;
         private readonly Interceptors allInterceptors;
         private readonly Interceptors runningInterceptors;
         const int RunAppTillTheEnd = -1;
         private List<ValidationResult> validations;
         private string WorkingDirectory;
+        private bool waitForTimersToFinish;
+
 
         public SideCarData()
         {
@@ -35,6 +38,7 @@ namespace SideCarCLI
             validations = new List<ValidationResult>();
             allProcesses = new ConcurrentDictionary<string, Process>();
             timerProcesses = new ConcurrentDictionary<string, Process>();
+            timers = new Dictionary<string, Timer>();
         }
        
 
@@ -44,7 +48,12 @@ namespace SideCarCLI
         public bool ExistRunningProcess { 
             get
             {
-                return allProcesses.Where(it => !it.Value.HasExited).Any();
+                var exists= allProcesses.Where(it => !it.Value.HasExited).Any();
+                if (exists)
+                    return true;
+
+                if(waitForTimersToFinish)
+                    return timerProcesses.Where(it => !it.Value.HasExited).Any();
             }
         }
 
@@ -104,6 +113,10 @@ namespace SideCarCLI
             RunTimerProcesses();
             var res=p.WaitForExit(this.MaxSeconds);
             var exitCode = 0;
+            foreach(var item in this.timers)
+            {
+                item.Value.Dispose();
+            }
             if (res)
             {
                 exitCode = p.ExitCode;
@@ -111,9 +124,24 @@ namespace SideCarCLI
             }
             else
             {
+                Console.WriteLine($"timeout {MaxSeconds} elapsed");
                 exitCode = int.MinValue;
             }
-            
+
+            if (!waitForTimersToFinish)
+            {
+                foreach(var item in this.timerProcesses)
+                {
+                    try
+                    {
+                        item.Value.Kill(true);
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.Error.WriteLine($"cannot kill {item.Value}");
+                    }
+                }
+            }
 
             return exitCode;
             
@@ -124,25 +152,36 @@ namespace SideCarCLI
 
         }
 
-        private async Task<int> RunTimerProcesses()
+        internal void ParseWaitForTimersToFinish(CommandOption wait)
+        {
+            this.waitForTimersToFinish = false;
+            if (wait.HasValue())
+            {
+                if (wait.Value() != "0")
+                    waitForTimersToFinish = true;
+            }
+        }
+
+        private void ExecuteTimerProcess(object state)
+        {
+            var local = state as TimerInterceptor;
+
+            string name = local.Name + DateTime.Now.ToString("o");
+            timerProcesses.TryAdd(name, local.RunTimerInterceptor(local.Name, local.arguments));
+
+        }
+        private int RunTimerProcesses()
         {
             if (!(runningInterceptors?.TimerInterceptors?.Length > 0))
                 return 0;
 
-
-
             foreach (var item in runningInterceptors.TimerInterceptors)
             {
                 var local = item;
-                var t = new System.Timers.Timer(item.intervalRepeatSeconds * 1000);
-                t.Elapsed += (sender, e)=>
-                {
-                    string name = local.Name + DateTime.Now.ToString("o");
-                    timerProcesses.TryAdd(name,local.RunTimerInterceptor(local.Name, local.arguments));
-
-                };
+                var t = new Timer( ExecuteTimerProcess,local,0,item.intervalRepeatSeconds * 1000);
+                timers.Add(local.Name, t);
             }
-
+            
 
             return 0;
         }
@@ -290,7 +329,6 @@ namespace SideCarCLI
                 Console.WriteLine($"[{item.Name}] {e.Data}");
             };
         };
-        
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

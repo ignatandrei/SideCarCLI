@@ -107,7 +107,7 @@ namespace SideCarCLI
     }
     public class TimerInterceptor: Interceptor
     {
-        public int intervalRepeatSeconds { get; set; }
+        public long intervalRepeatSeconds { get; set; }
         public string arguments { get; set; }
     }
     public class Interceptors

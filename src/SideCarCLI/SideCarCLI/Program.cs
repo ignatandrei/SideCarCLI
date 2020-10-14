@@ -49,7 +49,7 @@ namespace SideCarCLI
                 var lineInterceptorsNames= cmdStartApp.Option("-aLi|--addLineInterceptor", "Add Line Interceptor to execute", CommandOptionType.MultipleValue);
                 var timerInterceptorsNames=cmdStartApp.Option("-aTi|--addTimerInterceptor", "Add Timer Interceptor to execute", CommandOptionType.MultipleValue);
                 var finishInterceptorsNames = cmdStartApp.Option("-aFi|--addFinishInterceptor", "Add Finish Interceptor to execute", CommandOptionType.MultipleValue);
-
+                var waitForTimersToFinish = cmdStartApp.Option("-wFTitF|--waitForTimerInterceptorsToFinish", "wait for timer interceptors to finish 0 =false ", CommandOptionType.SingleOrNoValue);
 
                 cmdStartApp.OnExecuteAsync(async (ct) => 
                 {
@@ -60,7 +60,8 @@ namespace SideCarCLI
                     data.ParseCommandName(nameExe);
                     data.ParseArguments(argExe);
                     data.ParseWorkingDirectory(wd);
-                    data.ParseInterceptors(lineInterceptorsNames, timerInterceptorsNames, finishInterceptorsNames);                    
+                    data.ParseInterceptors(lineInterceptorsNames, timerInterceptorsNames, finishInterceptorsNames);
+                    data.ParseWaitForTimersToFinish(waitForTimersToFinish);
                     var res= data.ExecuteApp();
                     while (data.ExistRunningProcess)
                     {
