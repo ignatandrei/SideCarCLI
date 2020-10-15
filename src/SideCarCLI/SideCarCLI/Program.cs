@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SideCarCLI
@@ -15,6 +16,22 @@ namespace SideCarCLI
         static async Task<int> Main(string[] args)
         {
 
+            var data = "x=y z=t";
+            var expression = @"(?<FirstArg>\w+)=((\w+)) (?<LastArg>\w+)=((\w+))";
+            RegexOptions options = RegexOptions.Singleline;
+            var regex = new Regex(expression);
+            var names = regex.
+                GetGroupNames().
+                Where(it => !int.TryParse(it, out var _)).
+                ToArray();
+
+            var matches = regex.Matches(data);
+
+            Console.WriteLine(matches.Count);
+            var m = matches.FirstOrDefault();
+            Console.WriteLine(m.Groups?.Count);
+
+            return 1;
             var app = new CommandLineApplication()
             {
                 MakeSuggestionsInErrorMessage = true,

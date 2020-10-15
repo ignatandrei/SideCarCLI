@@ -21,6 +21,7 @@ namespace SideCarCLI
         public string FullPath { get; set; }
         public string FolderToExecute { get; set; }
         public bool InterceptOutput { get; set; }
+        public string RegexCaptureArguments { get; set; }
         public Process RunTimerInterceptor(string name,string data)
         {
             return RunInterceptor(name, data, InterceptorType.TimerInterceptor);
