@@ -16,9 +16,11 @@ namespace SideCarCLI
         static async Task<int> Main(string[] args)
         {
 
-            var data = "x=y z=t";
-            var expression = @"(?<FirstArg>\w+)=((\w+)) (?<LastArg>\w+)=((\w+))";
-            RegexOptions options = RegexOptions.Singleline;
+            //var data = "x=y z=t";
+            //var expression = @"(?<FirstArg>\w+)=((\w+)) (?<LastArg>\w+)=((\w+))";
+            var data = "-a \"www.yahoo.com\"";
+            var expression = @"-(?<FirstArg>.+) (?<LastArg>.+)";
+            var options = RegexOptions.Singleline;
             var regex = new Regex(expression);
             var names = regex.
                 GetGroupNames().
