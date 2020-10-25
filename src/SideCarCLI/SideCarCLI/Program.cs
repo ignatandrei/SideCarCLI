@@ -27,10 +27,16 @@ namespace SideCarCLI
 
             var matches = regex.Matches(data);
 
-            Console.WriteLine(matches.Count);
+            //Console.WriteLine(matches.Count);
             var m = matches.FirstOrDefault();
-            Console.WriteLine(m.Groups?.Count);
+            //Console.WriteLine(m.Groups?.Count);
+            foreach (var g in names)
+            {
+                Console.WriteLine(g);
+                Console.WriteLine(m.Groups[g].Success);
+                Console.WriteLine(m.Groups[g].Value);
 
+            }
             return 1;
             var app = new CommandLineApplication()
             {
