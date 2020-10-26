@@ -346,6 +346,7 @@ namespace SideCarCLI
         {
             P_OutputDataReceived(sender, e);
         }
+        static object lockMe = new object(); 
 
         private void P_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
@@ -358,12 +359,12 @@ namespace SideCarCLI
                 Console.WriteLine(e.Data);
                 return;
             }
-                
-
+            lock(lockMe)
             foreach(var item in runningInterceptors.LineInterceptors)
             {
                 try
                 {
+
                     var local = item;
                     var dataToBeParsed=new Dictionary<string, string>();
                     

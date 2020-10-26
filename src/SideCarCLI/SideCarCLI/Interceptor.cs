@@ -63,13 +63,14 @@ namespace SideCarCLI
             string arguments = Arguments;
             if (string.IsNullOrWhiteSpace(arguments))
             {
-                arguments = "{line}";
+                arguments = ReplaceForInterceptor(interceptorType);
             }
             foreach (var item in data)
             {
                 arguments = arguments.Replace(item.Key, item.Value);
             }
-            
+            pi.Arguments = arguments;
+            //Console.WriteLine($"!!!!!!!!!!!!start {pi.FileName} with {arguments}"); 
             pi.RedirectStandardError = InterceptOutput;
             pi.RedirectStandardOutput = InterceptOutput;
 

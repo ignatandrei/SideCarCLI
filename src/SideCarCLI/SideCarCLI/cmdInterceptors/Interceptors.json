@@ -3,8 +3,8 @@
   "LineInterceptors": [
     {
       "Name": "WindowsStandardWindowsOutputInterceptor",
-      "Arguments": "/c echo  from {site} {line}",
-      "FullPath": "cmd.exe",
+      "Arguments": "-command Write-Host {site} {line}",
+      "FullPath": "powershell.exe",
       "FolderToExecute": null,
       "InterceptOutput": true
     },
@@ -19,7 +19,7 @@
   "FinishInterceptors": [
     {
       "Name": "WindowsWaitIfNotExitCode0",
-      "Arguments": "{site} {exitCode}",
+      "Arguments": "{exitCode}",
       "FullPath": "cmdInterceptors/ExitCodeWait.bat",
       "FolderToExecute": null,
       "InterceptOutput": true
