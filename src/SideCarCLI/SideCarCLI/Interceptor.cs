@@ -22,15 +22,15 @@ namespace SideCarCLI
         public string FolderToExecute { get; set; }
         public bool InterceptOutput { get; set; }
         public string RegexCaptureArguments { get; set; }
-        public Process RunTimerInterceptor(string name,string data)
+        public Process RunTimerInterceptor(string name, Dictionary<string, string> data)
         {
             return RunInterceptor(name, data, InterceptorType.TimerInterceptor);
         }
-        public Process RunLineInterceptor(string name, string data)
+        public Process RunLineInterceptor(string name, Dictionary<string, string> data)
         {
             return RunInterceptor(name, data, InterceptorType.LineInterceptor);
         }
-        public Process RunFinishInterceptor(string name, string data)
+        public Process RunFinishInterceptor(string name, Dictionary<string, string> data)
         {
             return RunInterceptor(name, data, InterceptorType.FinishInterceptor);
         }
@@ -48,13 +48,13 @@ namespace SideCarCLI
                     throw new ArgumentException($"Cannot find {interceptorType.ToString()}");
             }
         }
-        private Process RunInterceptor(string name, string data, InterceptorType interceptorType)
+        private Process RunInterceptor(string name, Dictionary<string, string> data, InterceptorType interceptorType)
         {
             string typeInterceptor =  interceptorType.ToString();
-            string replace = ReplaceForInterceptor(interceptorType);
+            //string replace = ReplaceForInterceptor(interceptorType);
 
             var pi = new ProcessStartInfo(FullPath);
-            pi.Arguments = data;
+            
             string wd = FolderToExecute;
             if (string.IsNullOrWhiteSpace(wd))
             {
@@ -63,14 +63,13 @@ namespace SideCarCLI
             string arguments = Arguments;
             if (string.IsNullOrWhiteSpace(arguments))
             {
-                arguments = replace;
+                arguments = "{line}";
+            }
+            foreach (var item in data)
+            {
+                arguments = arguments.Replace(item.Key, item.Value);
             }
             
-            if (replace?.Length > 0)
-                pi.Arguments = arguments.Replace(replace, data);
-            else
-                pi.Arguments = arguments;
-
             pi.RedirectStandardError = InterceptOutput;
             pi.RedirectStandardOutput = InterceptOutput;
 

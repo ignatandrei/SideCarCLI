@@ -18,28 +18,28 @@ namespace SideCarCLI
 
             //var data = "x=y z=t";
             //var expression = @"(?<FirstArg>\w+)=((\w+)) (?<LastArg>\w+)=((\w+))";
-            var data = "-a \"www.yahoo.com\"";
-            var expression = @"-(?<FirstArg>.+) (?<LastArg>.+)";
-            var options = RegexOptions.Singleline;
-            var regex = new Regex(expression);
-            var names = regex.
-                GetGroupNames().
-                Where(it => !int.TryParse(it, out var _)).
-                ToArray();
+            //var data = "-n 20 \"www.yahoo.com\"";
+            //var expression = @"(?<FirstArg>.+) (?<site>.+)";
+            //var options = RegexOptions.Singleline;
+            //var regex = new Regex(expression);
+            //var names = regex.
+            //    GetGroupNames().
+            //    Where(it => !int.TryParse(it, out var _)).
+            //    ToArray();
 
-            var matches = regex.Matches(data);
+            //var matches = regex.Matches(data);
 
-            //Console.WriteLine(matches.Count);
-            var m = matches.FirstOrDefault();
+            ////Console.WriteLine(matches.Count);
+            //var m = matches.FirstOrDefault();
             //Console.WriteLine(m.Groups?.Count);
-            foreach (var g in names)
-            {
-                Console.WriteLine(g);
-                Console.WriteLine(m.Groups[g].Success);
-                Console.WriteLine(m.Groups[g].Value);
+            //foreach (var g in names)
+            //{
+            //    Console.WriteLine(g);
+            //    Console.WriteLine(m.Groups[g].Success);
+            //    Console.WriteLine(m.Groups[g].Value);
 
-            }
-            return 1;
+            //}
+            //return 1;
             var app = new CommandLineApplication()
             {
                 MakeSuggestionsInErrorMessage = true,
@@ -75,7 +75,7 @@ namespace SideCarCLI
                 var timerInterceptorsNames=cmdStartApp.Option("-aTi|--addTimerInterceptor", "Add Timer Interceptor to execute", CommandOptionType.MultipleValue);
                 var finishInterceptorsNames = cmdStartApp.Option("-aFi|--addFinishInterceptor", "Add Finish Interceptor to execute", CommandOptionType.MultipleValue);
                 var waitForTimersToFinish = cmdStartApp.Option("-wFTitF|--waitForTimerInterceptorsToFinish", "wait for timer interceptors to finish 0 =false ", CommandOptionType.SingleOrNoValue);
-
+                var optionRegex = cmdStartApp.Option("-rx|--regex <string>", "regex to parse original line and pass the matches to the interceptors", CommandOptionType.SingleOrNoValue);
                 cmdStartApp.OnExecuteAsync(async (ct) => 
                 {
                     var data = new SideCarData();
@@ -87,6 +87,7 @@ namespace SideCarCLI
                     data.ParseWorkingDirectory(wd);
                     data.ParseInterceptors(lineInterceptorsNames, timerInterceptorsNames, finishInterceptorsNames);
                     data.ParseWaitForTimersToFinish(waitForTimersToFinish);
+                    data.SetRegex(optionRegex.HasValue() ? optionRegex.Value() : null);
                     var res= data.ExecuteApp();
                     while (data.ExistRunningProcess)
                     {

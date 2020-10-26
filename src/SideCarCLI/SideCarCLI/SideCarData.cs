@@ -10,6 +10,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,6 +32,7 @@ namespace SideCarCLI
 
         public SideCarData()
         {
+            this.argsRegex = new Dictionary<string, string>();
             string fileInterceptors = Path.Combine("cmdInterceptors", "interceptors.json");
             allInterceptors = JsonSerializer.Deserialize<Interceptors>(File.ReadAllText(fileInterceptors));
             runningInterceptors = new Interceptors();
@@ -91,7 +93,34 @@ namespace SideCarCLI
                 }
                 return -1;
             }
-            
+
+            if (!string.IsNullOrWhiteSpace(regEx))
+            {
+                var regex = new Regex(this.regEx);
+                var names = regex.
+                    GetGroupNames().
+                    Where(it => !int.TryParse(it, out var _)).
+                    ToArray();
+
+                var matches = regex.Matches(this.Arguments);
+                if (matches.Count == 0)
+                    throw new ArgumentException($" the regex {regEx} has no matches for {Arguments}");
+
+                var m = matches.FirstOrDefault();
+                foreach(var g in names)
+                {
+                    if (m.Groups[g].Success)
+                    {
+                        argsRegex[g]=m.Groups[g].Value;
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"cannot find {g}  in regex {regEx} when parsing {Arguments}");
+                    }
+                }
+
+            }
+
             var pi = new ProcessStartInfo(this.FullAppPath);
             pi.Arguments = this.Arguments;
             pi.WorkingDirectory = this.WorkingDirectory;
@@ -154,6 +183,11 @@ namespace SideCarCLI
 
         }
 
+        internal void SetRegex(string regEx)
+        {
+            this.regEx = regEx;
+        }
+
         internal void ParseWaitForTimersToFinish(CommandOption wait)
         {
             this.waitForTimersToFinish = false;
@@ -167,9 +201,18 @@ namespace SideCarCLI
         private void ExecuteTimerProcess(object state)
         {
             var local = state as TimerInterceptor;
+            var dataToBeParsed = new Dictionary<string, string>();
 
+            if (this.argsRegex.Count > 0)
+            {
+                foreach (var reg in argsRegex)
+                {
+                    dataToBeParsed.Add("{" + reg.Key + "}", reg.Value);
+                }
+            }
+            
             string name = local.Name + DateTime.Now.ToString("o");
-            timerProcesses.TryAdd(name, local.RunTimerInterceptor(local.Name, local.arguments));
+            timerProcesses.TryAdd(name, local.RunTimerInterceptor(local.Name, dataToBeParsed));
 
         }
         private int RunTimerProcesses()
@@ -278,7 +321,18 @@ namespace SideCarCLI
                 try
                 {
                     var local = item;
-                    allProcesses.TryAdd(local.Name, local.RunFinishInterceptor(local.Name, exitCode.ToString()));
+                    var dataToBeParsed = new Dictionary<string, string>();
+
+                    if (this.argsRegex.Count > 0)
+                    {
+                        foreach (var reg in argsRegex)
+                        {
+                            dataToBeParsed.Add("{" + reg.Key + "}", reg.Value);
+                        }
+                    }
+                    dataToBeParsed["{exitCode}"] = exitCode.ToString();
+
+                    allProcesses.TryAdd(local.Name, local.RunFinishInterceptor(local.Name, dataToBeParsed));;
 
                 }
                 catch (Exception ex)
@@ -311,7 +365,17 @@ namespace SideCarCLI
                 try
                 {
                     var local = item;
-                    allProcesses.TryAdd(local.Name, local.RunLineInterceptor(local.Name,e.Data));
+                    var dataToBeParsed=new Dictionary<string, string>();
+                    
+                    if(this.argsRegex.Count>0)
+                    {
+                        foreach (var reg in argsRegex)
+                        {
+                            dataToBeParsed.Add("{"+reg.Key+"}", reg.Value);
+                        }
+                    }
+                    dataToBeParsed["{line}"]= e.Data;
+                    allProcesses.TryAdd(local.Name, local.RunLineInterceptor(local.Name,dataToBeParsed));
                 
                 }
                 catch (Exception ex)
@@ -331,6 +395,9 @@ namespace SideCarCLI
                 Console.WriteLine($"[{item.Name}] {e.Data}");
             };
         };
+        private string regEx;
+        Dictionary<string, string> argsRegex;
+
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
