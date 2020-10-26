@@ -3,8 +3,8 @@
   "LineInterceptors": [
     {
       "Name": "WindowsStandardWindowsOutputInterceptor",
-      "Arguments": "-command Write-Host {site} {line}",
-      "FullPath": "powershell.exe",
+      "Arguments": "/c echo \"{site} {line}\"",
+      "FullPath": "cmd.exe",
       "FolderToExecute": null,
       "InterceptOutput": true
     },

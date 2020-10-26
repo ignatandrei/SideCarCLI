@@ -346,7 +346,7 @@ namespace SideCarCLI
         {
             P_OutputDataReceived(sender, e);
         }
-        static object lockMe = new object(); 
+        //static object lockMe = new object(); 
 
         private void P_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
@@ -359,7 +359,7 @@ namespace SideCarCLI
                 Console.WriteLine(e.Data);
                 return;
             }
-            lock(lockMe)
+            //lock(lockMe)
             foreach(var item in runningInterceptors.LineInterceptors)
             {
                 try
@@ -388,7 +388,7 @@ namespace SideCarCLI
 
         
 
-        Func<Interceptor, DataReceivedEventHandler> a = (item) =>
+        Func<Interceptor, DataReceivedEventHandler> a1 = (item) =>
         {
             return delegate (object sender, DataReceivedEventArgs e)
             {
