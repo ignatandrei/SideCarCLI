@@ -2,7 +2,7 @@
   "profiles": {
     "SideCarCLI": {
       "commandName": "Project",
-      "commandLineArgs": "StartAPP -n ping -a \"-n 1 www.yahoo.com\" -rx:\"(?<FirstArg>.+) (?<site>.+)\" -aLi WindowsStandardWindowsOutputInterceptor -aFi WindowsWaitIfNotExitCode0"
+      "commandLineArgs": "StartAPP -t:1 -n ping -a \"-n 1 www.yahoo.com\" -rx:\"(?<FirstArg>.+) (?<site>.+)\" -aLi WindowsStandardWindowsOutputInterceptor -aFi WindowsWaitIfNotExitCode0"
     }
   }
 }

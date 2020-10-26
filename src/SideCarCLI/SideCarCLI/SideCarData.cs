@@ -134,6 +134,8 @@ namespace SideCarCLI
             };
             
             ShowSummary(pi, this);
+            if (justTest)
+                return 0;
             
             p.OutputDataReceived += P_OutputDataReceived;
             p.ErrorDataReceived += P_ErrorDataReceived;
@@ -181,6 +183,11 @@ namespace SideCarCLI
 
            
 
+        }
+
+        internal void SetTest(bool justTest)
+        {
+            this.justTest = justTest;
         }
 
         internal void SetRegex(string regEx)
@@ -291,23 +298,33 @@ namespace SideCarCLI
         private void ShowSummary(ProcessStartInfo pi, SideCarData sideCarData)
         {
             Console.WriteLine($"I will start {pi.FileName} in {pi.WorkingDirectory} with {pi.Arguments}");
-            Console.WriteLine($"LineInterceptors:{sideCarData?.runningInterceptors?.LineInterceptors?.Length}"); 
+            if (argsRegex.Count > 0)
+            {
+                Console.WriteLine("---->replacements arguments ");
+                foreach (var ar in argsRegex)
+                {
+                    Console.WriteLine($"{ar.Key}=>{ar.Value}");
+                }
+            }
+
+            Console.WriteLine($"---->LineInterceptors:{sideCarData?.runningInterceptors?.LineInterceptors?.Length}"); 
             if (sideCarData.runningInterceptors?.LineInterceptors?.Length > 0)
             foreach (var item in sideCarData?.runningInterceptors?.LineInterceptors)
             {
-                Console.WriteLine($"LineInterceptor:{item.Name}");
+                Console.WriteLine($"LineInterceptor:{item.Name} with arguments {item.Arguments}");
             }
-            Console.WriteLine($"TimerInterceptors:{sideCarData?.runningInterceptors?.TimerInterceptors?.Length}");
+            
+            Console.WriteLine($"---->TimerInterceptors:{sideCarData?.runningInterceptors?.TimerInterceptors?.Length}");
             if(sideCarData.runningInterceptors?.TimerInterceptors?.Length>0)
             foreach (var item in sideCarData.runningInterceptors.TimerInterceptors)
             {
-                Console.WriteLine($"TimerInterceptor:{item.Name}");
+                Console.WriteLine($"TimerInterceptor:{item.Name} with arguments {item.Arguments}");
             }
-            Console.WriteLine($"FinishInterceptors:{sideCarData?.runningInterceptors?.FinishInterceptors?.Length}");
+            Console.WriteLine($"---->FinishInterceptors:{sideCarData?.runningInterceptors?.FinishInterceptors?.Length}");
             if(sideCarData.runningInterceptors?.FinishInterceptors?.Length>0)
             foreach (var item in sideCarData.runningInterceptors.FinishInterceptors)
             {
-                Console.WriteLine($"FinishInterceptor:{item.Name}");
+                Console.WriteLine($"FinishInterceptor:{item.Name} with arguments {item.Arguments}");
             }
         }
 
@@ -398,7 +415,7 @@ namespace SideCarCLI
         };
         private string regEx;
         Dictionary<string, string> argsRegex;
-
+        private bool justTest;
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
