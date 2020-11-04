@@ -169,7 +169,7 @@ namespace SideCarCLI
                     {
                         item.Value.Kill(true);
                     }
-                    catch(Exception ex)
+                    catch(Exception)
                     {
                         Console.Error.WriteLine($"cannot kill {item.Value}");
                     }

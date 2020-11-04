@@ -4,6 +4,27 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>sidecarcli</ToolCommandName>
+    <Title>SideCarCLI</Title>
+    
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+    <PackageId>sidecarcli</PackageId>
+    <Version>2020.111.104</Version>
+    <Authors>Andrei Ignat</Authors>
+    <Company>AOM</Company>
+    <Product>sidecarcli</Product>
+    <Description>A SideCar for Command Line Applications. Read http://msprogrammer.serviciipeweb.ro/category/sidecar/ . Code source at https://github.com/ignatandrei/sidecarcli</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>http://msprogrammer.serviciipeweb.ro/category/sidecar/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ignatandrei/SideCarCLI/</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <PackageTags>SideCarCLI;Side Car; Command Line</PackageTags>
+    <PackageReleaseNotes>First version. Read http://msprogrammer.serviciipeweb.ro/category/sidecar/</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>    

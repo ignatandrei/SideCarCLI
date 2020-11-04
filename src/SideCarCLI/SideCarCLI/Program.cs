@@ -13,7 +13,7 @@ namespace SideCarCLI
     class Program
     {
         
-        static async Task<int> Main(string[] args)
+        static int Main(string[] args)
         {
 
             //var data = "x=y z=t";
