@@ -28,7 +28,7 @@ jobs:
         cd SideCarCLI
         dotnet publish -c Release --no-restore -r linux-x64 -p:PublishTrimmed=true --self-contained -o linuxx64 
         dotnet publish -c Release --no-restore -r   win-x64 -p:PublishTrimmed=true --self-contained -o winx64
-        
+        dotnet pack -c Release --include-source --include-symbols -o toolpack 
     - uses: actions/upload-artifact@v2
       with:
         name: winx64
@@ -38,5 +38,11 @@ jobs:
       with:
         name: linuxx64
         path: src/SideCarCLI/SideCarCLI/linuxx64/
+    
+    - uses: actions/upload-artifact@v2
+      with:
+        name: dotnetTool
+        path: src/SideCarCLI/SideCarCLI/toolpack/
+    
         #- name: Test
     #  run: dotnet test --no-restore --verbosity normal
