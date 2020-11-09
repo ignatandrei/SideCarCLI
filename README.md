@@ -1,5 +1,17 @@
 # SideCarCLI
 
+## Releases
+
+You can download as a .NET Tool https://www.nuget.org/packages/sidecarcli/
+
+or
+
+You can download the latest release from the latest CI build, 
+
+https://github.com/ignatandrei/SideCarCLI/actions
+
+## Documentation
+ 
 Diagram for how SideCarCLI works: ( not show regex parsing for the command line)
 
 <img src="sideCar.png" />
