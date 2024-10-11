@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30523.141
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SideCarCLI", "SideCarCLI\SideCarCLI.csproj", "{8D1D2CEC-3F82-4691-BDF1-981C999E2653}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SideCarCLI", "SideCarCLI\SideCarCLI.csproj", "{8D1D2CEC-3F82-4691-BDF1-981C999E2653}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SC_Interfaces", "SC_Interfaces\SC_Interfaces.csproj", "{12DDD1BC-9605-4384-9964-93410668CA98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SC_Tool", "SC_Tool\SC_Tool.csproj", "{652096DC-5CF1-4263-A947-9A2A82B0C966}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{8D1D2CEC-3F82-4691-BDF1-981C999E2653}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D1D2CEC-3F82-4691-BDF1-981C999E2653}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D1D2CEC-3F82-4691-BDF1-981C999E2653}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12DDD1BC-9605-4384-9964-93410668CA98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12DDD1BC-9605-4384-9964-93410668CA98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12DDD1BC-9605-4384-9964-93410668CA98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12DDD1BC-9605-4384-9964-93410668CA98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{652096DC-5CF1-4263-A947-9A2A82B0C966}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{652096DC-5CF1-4263-A947-9A2A82B0C966}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{652096DC-5CF1-4263-A947-9A2A82B0C966}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{652096DC-5CF1-4263-A947-9A2A82B0C966}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
