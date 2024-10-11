@@ -20,7 +20,7 @@ public class Program
         return await lastVersion.Run(args);
         
     }
-    private static ServiceProvider CreateServices()
+    private static IServiceProvider CreateServices()
     {
         var serviceProvider = new ServiceCollection()
             //.AddSingleton<IRunWatcher>((IRunWatcher)null)

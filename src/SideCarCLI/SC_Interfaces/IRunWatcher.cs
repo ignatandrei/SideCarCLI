@@ -2,7 +2,7 @@
 public interface IRunWatcherDetect
 {
     public string Folder { get; set; }
-    public IRunWatcher[] DetectVersions();
+    public Task<IRunWatcher[]> DetectVersions();
 }
 
 public interface IRunWatcher
