@@ -23,8 +23,7 @@ jobs:
         cd SideCarCLI
         dotnet restore 
         echo "build sln"
-        dotnet build --configuration Release --no-restore -r linux-x64 
-        dotnet build --configuration Release --no-restore -r win-x64 
+        dotnet build --configuration Release --no-restore  
         cd SideCarCLI
         dotnet publish -c Release --no-restore -r linux-x64 -p:PublishTrimmed=true --self-contained -o linuxx64 
         dotnet publish -c Release --no-restore -r   win-x64 -p:PublishTrimmed=true --self-contained -o winx64
